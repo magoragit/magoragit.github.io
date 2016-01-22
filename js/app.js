@@ -23932,7 +23932,7 @@ exports.default = _react2.default.createClass({
   }
 });
 
-},{"../Events.js":208,"./Chat/Chat.js":214,"./Header.js":220,"react":204,"react-router":71}],212:[function(require,module,exports){
+},{"../Events.js":208,"./Chat/Chat.js":214,"./Header.js":221,"react":204,"react-router":71}],212:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23976,7 +23976,7 @@ exports.default = _react2.default.createClass({
       'form',
       { className: 'chat-area__write' },
       _react2.default.createElement('textarea', { placeholder: 'Write your message', value: this.state.message, onChange: this.handleChangeMessage }),
-      _react2.default.createElement('input', { type: 'submit', className: 'chat-area__submit', onClick: this.handleAddMessage })
+      _react2.default.createElement('input', { type: 'submit', className: 'chat-area__submit', onClick: this.handleAddMessage, value: 'Send' })
     );
   }
 });
@@ -24053,7 +24053,7 @@ exports.default = _react2.default.createClass({
       _react2.default.createElement(
         'button',
         { type: 'submit', className: 'btn btn-default auth__submit', onClick: this.handleAuth },
-        'Auth'
+        'Log in'
       )
     );
   }
@@ -24084,6 +24084,10 @@ var _Profile = require('./Profile.js');
 
 var _Profile2 = _interopRequireDefault(_Profile);
 
+var _ProfileEdit = require('./ProfileEdit.js');
+
+var _ProfileEdit2 = _interopRequireDefault(_ProfileEdit);
+
 var _Messages = require('./Messages.js');
 
 var _Messages2 = _interopRequireDefault(_Messages);
@@ -24098,6 +24102,7 @@ var _Auth2 = _interopRequireDefault(_Auth);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+// import Component's here
 exports.default = _react2.default.createClass({
   displayName: 'Chat',
 
@@ -24107,7 +24112,8 @@ exports.default = _react2.default.createClass({
     return { user: { id: -1, friends: [] },
       contacts: [],
       typing_login: -1,
-      messages: {}
+      messages: {},
+      editUser: false
     };
   },
 
@@ -24130,9 +24136,15 @@ exports.default = _react2.default.createClass({
     // add in
   },
 
+  //
+  handleEditUser: function handleEditUser() {
+    this.setState({ editUser: true });
+  },
+
   // Select dialog
   handleSelectDialog: function handleSelectDialog(id) {
     this.setState({ typing_login: id });
+    this.setState({ editUser: false });
 
     var link = "https://asdasdasdasdasdasdasd.firebaseio.com/users/" + this.state.user.login + "/messages/" + id;
     var link2 = "https://asdasdasdasdasdasdasd.firebaseio.com/users/" + id + "/messages/" + this.state.user.login;
@@ -24161,7 +24173,6 @@ exports.default = _react2.default.createClass({
         user = user.val();
 
         if (user.password == password) {
-          console.log("Unlock");
           self.setState({ user: user });
         }
       } else {
@@ -24172,6 +24183,8 @@ exports.default = _react2.default.createClass({
 
   render: function render() {
 
+    console.log(this.state.user.friends);
+
     return _react2.default.createElement(
       'section',
       { className: 'chat' },
@@ -24180,13 +24193,13 @@ exports.default = _react2.default.createClass({
         { className: 'chat__inner' },
         _react2.default.createElement(
           'aside',
-          { className: 'chat-contacts col-md-4' },
-          _react2.default.createElement(_Profile2.default, { user: this.state.user }),
+          { className: 'chat-contacts col-xs-5 col-md-4' },
+          _react2.default.createElement(_Profile2.default, { user: this.state.user, editMode: this.handleEditUser }),
           _react2.default.createElement(_Contacts2.default, { contacts: this.state.user.friends, selectDialog: this.handleSelectDialog })
         ),
-        _react2.default.createElement(
+        !this.state.editUser ? _react2.default.createElement(
           'div',
-          { className: 'chat-area  col-md-8' },
+          { className: 'chat-area col-xs-7 col-md-8' },
           this.state.typing_login == -1 ? _react2.default.createElement(
             'div',
             { className: 'chat-area__advice' },
@@ -24197,15 +24210,17 @@ exports.default = _react2.default.createClass({
             _react2.default.createElement(_Messages2.default, { data: this.state.messages }),
             _react2.default.createElement(_AddMessage2.default, { handleAddMessage: this.handleAddMessage })
           )
+        ) : _react2.default.createElement(
+          'div',
+          { className: 'chat-area col-xs-7 col-md-8' },
+          _react2.default.createElement(_ProfileEdit2.default, null)
         )
       ) : _react2.default.createElement(_Auth2.default, { handleAuth: this.handleAuthUser })
     );
   }
 });
 
-// import Component's here
-
-},{"../../Events.js":208,"./AddMessage.js":212,"./Auth.js":213,"./Contacts.js":216,"./Messages.js":218,"./Profile.js":219,"react":204,"react-router":71}],215:[function(require,module,exports){
+},{"../../Events.js":208,"./AddMessage.js":212,"./Auth.js":213,"./Contacts.js":216,"./Messages.js":218,"./Profile.js":219,"./ProfileEdit.js":220,"react":204,"react-router":71}],215:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24233,29 +24248,32 @@ exports.default = _react2.default.createClass({
 
   render: function render() {
 
-    return _react2.default.createElement(
-      'li',
-      { className: 'chat-contact', onClick: this.handleSelectDialog },
+    return(
+      //<li className={'chat-contact {this.props.activeId === this.props.id ? 'chat-contact_active' : ''}'} onClick={this.handleSelectDialog}>
       _react2.default.createElement(
-        'div',
-        { className: 'row' },
+        'li',
+        { className: 'chat-contact', onClick: this.handleSelectDialog },
         _react2.default.createElement(
           'div',
-          { className: 'col-md-4' },
-          _react2.default.createElement('img', { src: this.props.image, className: 'chat-contact__image' })
-        ),
-        _react2.default.createElement(
-          'div',
-          { className: 'col-md-8' },
+          { className: 'row' },
           _react2.default.createElement(
             'div',
-            { className: 'chat-contact__name' },
-            this.props.name
+            { className: 'col-xs-3 chat-contact__avatar' },
+            _react2.default.createElement('img', { src: this.props.image, className: 'chat-contact__image' })
           ),
           _react2.default.createElement(
-            'p',
-            { className: 'chat-contact__desc' },
-            this.props.desc
+            'div',
+            { className: 'col-xs-9' },
+            _react2.default.createElement(
+              'div',
+              { className: 'chat-contact__name' },
+              this.props.name
+            ),
+            _react2.default.createElement(
+              'p',
+              { className: 'chat-contact__desc' },
+              this.props.desc
+            )
           )
         )
       )
@@ -24290,12 +24308,18 @@ exports.default = _react2.default.createClass({
   displayName: 'Contacts',
 
   getInitialState: function getInitialState() {
-    return { contacts: [] };
+    return { contacts: [], activeId: '' };
+  },
+
+  handleSelectDialog: function handleSelectDialog(id) {
+    this.props.selectDialog(id);
+    this.setState({ activeId: id });
   },
 
   componentWillMount: function componentWillMount() {
     var self = this;
     var props = this.props;
+
     props.contacts.map(function (item) {
 
       var ref = new Firebase("https://asdasdasdasdasdasdasd.firebaseio.com/users");
@@ -24305,7 +24329,9 @@ exports.default = _react2.default.createClass({
 
         if (user.exists()) {
           var _item = user.val();
-          var contact = _react2.default.createElement(_Contact2.default, { id: _item.login, image: _item.image, name: _item.name, desc: _item.desc, selectDialog: props.selectDialog });
+          var contact = _react2.default.createElement(_Contact2.default, { activeId: self.state.activeId, id: _item.login, image: _item.image, name: _item.name, desc: _item.desc, selectDialog: self.handleSelectDialog });
+
+          // prepare
           var contacts = self.state.contacts;
           contacts[contacts.length] = contact;
           self.setState({ contacts: contacts });
@@ -24438,25 +24464,28 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.default = _react2.default.createClass({
   displayName: 'Profile',
 
-  render: function render() {
+  handleSetting: function handleSetting() {
+    this.props.editMode();
+  },
 
+  render: function render() {
     return _react2.default.createElement(
       'div',
       null,
       _react2.default.createElement(
         'div',
-        { className: 'chat-contact chat-contact_profile' },
+        { className: 'chat-contact chat-contact_profile', onClick: this.handleSetting },
         _react2.default.createElement(
           'div',
           { className: 'row' },
           _react2.default.createElement(
             'div',
-            { className: 'col-md-4' },
+            { className: 'col-xs-3 chat-contact__avatar' },
             _react2.default.createElement('img', { src: this.props.user.image, className: 'chat-contact__image' })
           ),
           _react2.default.createElement(
             'div',
-            { className: 'col-md-8' },
+            { className: 'col-xs-9' },
             _react2.default.createElement(
               'div',
               { className: 'chat-contact__name' },
@@ -24465,30 +24494,19 @@ exports.default = _react2.default.createClass({
             _react2.default.createElement(
               'p',
               { className: 'chat-contact__desc' },
-              this.props.user.desc
+              _react2.default.createElement(
+                'em',
+                null,
+                this.props.user.desc
+              )
             ),
             _react2.default.createElement(
               'p',
               { className: 'chat-contact__desc' },
               _react2.default.createElement(
-                'span',
-                null,
-                _react2.default.createElement(
-                  'strong',
-                  null,
-                  'friends:'
-                ),
-                ' 62'
-              ),
-              _react2.default.createElement(
-                'span',
-                null,
-                _react2.default.createElement(
-                  'strong',
-                  null,
-                  'message:'
-                ),
-                ' 14'
+                'a',
+                { onClick: this.handleSetting },
+                'edit profile'
               )
             )
           )
@@ -24499,6 +24517,42 @@ exports.default = _react2.default.createClass({
 });
 
 },{"../../Events.js":208,"react":204,"react-router":71}],220:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactRouter = require('react-router');
+
+var _Events = require('../../Events.js');
+
+var _Events2 = _interopRequireDefault(_Events);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// import Component's here
+exports.default = _react2.default.createClass({
+  displayName: 'ProfileEdit',
+
+  render: function render() {
+    return _react2.default.createElement(
+      'section',
+      { className: 'profile-edit' },
+      _react2.default.createElement(
+        'h4',
+        null,
+        'Mode for edit user'
+      )
+    );
+  }
+});
+
+},{"../../Events.js":208,"react":204,"react-router":71}],221:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24533,7 +24587,11 @@ exports.default = _react2.default.createClass({
         _react2.default.createElement(
           'div',
           { className: 'header__logotype col-xs-10' },
-          _react2.default.createElement('img', { src: 'http://magora-systems.com/media/logo.png', alt: 'Magora Systems' })
+          _react2.default.createElement(
+            'a',
+            { href: 'http://magora-systems.com/' },
+            _react2.default.createElement('img', { src: 'http://magora-systems.com/media/logo.png', alt: 'Magora Systems' })
+          )
         )
       )
     );
